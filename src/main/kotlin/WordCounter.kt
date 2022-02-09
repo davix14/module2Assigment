@@ -69,7 +69,7 @@ class WordCounter constructor(
 
     private fun printWordCount() {
         val sorted = wordsMap.toList().sortedBy { (_, value) -> value }.toMap()
-        print("Word Occurrences (Sorted by occurrence # from Low to High)\n")
+        print("Word Occurrences (Sorted by occurrence # from Low to High):\n\n")
         for (word in sorted) {
             print("Word: ${word.key}\t Occurrences: ${word.value}\n")
         }
