@@ -8,7 +8,12 @@ class WordCounter constructor(
 
     //  create URL obj and Scanner obj to get the file
     private val docUrl: URL = URL(url)
+    //  add error handling in case of error getting the file
+    try{
     val scnr1 = Scanner(docUrl.openStream())
+    } catch(e: Exception){
+        println("ERROR: Failed to get doc")   
+    }
     lateinit var scnr2: Scanner
 
     //  hashmap to store words and count
