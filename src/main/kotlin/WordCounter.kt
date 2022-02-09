@@ -10,36 +10,27 @@ class WordCounter constructor(
     //  create URL obj and Scanner obj to get the file
     private val docUrl: URL = URL(url)
     val scnr1 = Scanner(docUrl.openStream())
-    var wordsMap = HashMap<String, Int>()
     lateinit var scnr2: Scanner
+    //  hashmap to store words and count
+    var wordsMap = HashMap<String, Int>()
+    //  flag to exit the loops once poem is read
     var proceed = true
 
     object PoemConstants {
         const val START_OF_POEM = "by Edgar Allan Poe"
-        const val END_OF_POEM = "lifted—nevermore!"
+        const val END_OF_POEM = "***"
     }
 
     fun getDocAndWords() {
         while (proceed) {
             var nextLine = scnr1.nextLine()
             nextLine = Jsoup.parse(nextLine).text()
-//            println(nextLine)
-//            println(nextLine)
             if (nextLine == PoemConstants.START_OF_POEM) {
                 println("START OF POEM")
                 while(proceed) {
                     readPoem()
                 }
             }
-
-/*
-            if (nextLine == PoemConstants.START_OF_POEM) {
-                //  each loop will read the next line and parse the words from tha line
-                while (proceed) {
-                    readPoem()
-                }
-            }
-*/
         }
         printWordCount()
     }
@@ -47,25 +38,30 @@ class WordCounter constructor(
     private fun readPoem() {
         scnr2 = Scanner(Jsoup.parse(scnr1.nextLine()).text())
         while (scnr2.hasNext()) {
-            var nextWord = scnr2.next()
+            val nextWord = scnr2.next()
 
             if (nextWord == PoemConstants.END_OF_POEM) {
                 proceed = false
                 break
             }
-            println(nextWord)
-            addToWordCount(nextWord)
+            println(cleanWord(nextWord))
+            addToWordCount(cleanWord(nextWord))
         }
     }
 
+    private fun cleanWord(wordIn: String): String{
+        val regex = Regex("[^A-Za-z0-9 ]")
+        return regex.replace(wordIn, "").lowercase(Locale.getDefault())
+    }
+
     private fun addToWordCount(wordIn: String){
-        val count = if(wordsMap.containsKey(wordIn)) wordsMap[wordIn] else 1
+        val count = if(wordsMap.containsKey(wordIn)) (wordsMap[wordIn]?.plus(1)) else 1
         wordsMap[wordIn] = count!!
     }
 
     private fun printWordCount(){
-        wordsMap.toString()
+        for(word in wordsMap){
+            println(word)
+        }
     }
-    //  START of poem <div class="chapter">
-// END of poem </div><!--end chapter-->
 }
