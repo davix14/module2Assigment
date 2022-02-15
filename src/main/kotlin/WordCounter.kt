@@ -1,26 +1,33 @@
 import org.jsoup.Jsoup
 import java.net.URL
 import java.util.*
+import kotlin.collections.LinkedHashMap
 
 class WordCounter constructor(
     url: String
 ) {
+    private val docUrl: URL
+    private lateinit var scnr1: Scanner
 
-    //  create URL obj and Scanner obj to get the file
-    private val docUrl: URL = URL(url)
-    //  add error handling in case of error getting the file
-    try{
-    val scnr1 = Scanner(docUrl.openStream())
-    } catch(e: Exception){
-        println("ERROR: Failed to get doc")   
+    init {
+        //  create URL obj and Scanner obj to get the file
+        docUrl = URL(url)
+
+        //  add error handling in case of error getting the file
+        try {
+            scnr1 = Scanner(docUrl.openStream())
+        } catch (e: Exception) {
+            println("ERROR: Failed to get doc")
+        }
     }
-    lateinit var scnr2: Scanner
+
+    private lateinit var scnr2: Scanner
 
     //  hashmap to store words and count
-    var wordsMap = hashMapOf<String, Int>()
+    private var wordsMap = hashMapOf<String, Int>()
 
     //  flag to exit the loops once poem is read
-    var proceed = true
+    private var proceed = true
 
     //  constants object for the start and end markers
     object PoemConstants {
@@ -73,10 +80,37 @@ class WordCounter constructor(
     }
 
     private fun printWordCount() {
-        val sorted = wordsMap.toList().sortedBy { (_, value) -> value }.toMap()
-        print("Word Occurrences (Sorted by occurrence # from Low to High):\n\n")
-        for (word in sorted) {
+        val sortedMap = sortMap()
+        print("Word Occurrences (Sorted by occurrence # from High to Low):\n\n")
+        for (word in sortedMap) {
             print("Word: ${word.key}\t Occurrences: ${word.value}\n")
         }
+    }
+
+    private fun sortMap(): LinkedHashMap<String, Int> {
+        val sortedMap = kotlin.collections.LinkedHashMap<String, Int>()
+        val indexOrder = arrayListOf<String>()
+        var maxValue = 0
+        //  find largest value
+        wordsMap.onEachIndexed { _, entry ->
+            if (entry.value > maxValue) {
+                maxValue = entry.value
+            }
+        }
+        var counter = maxValue
+        while (counter != 0) {
+            wordsMap.onEachIndexed { _, entry ->
+                if (entry.value == counter) {
+                    indexOrder.add(entry.key)
+                }
+            }
+            counter--
+        }
+
+        for (index in indexOrder) {
+            wordsMap[index]?.let { sortedMap.put(index, it) }
+        }
+
+        return sortedMap
     }
 }
